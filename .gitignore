@@ -41,3 +41,4 @@ src/*.egg-info/*
 .snakemake/*
 output/*
 *_IDs.txt
+run_pipeline_slurm.sh
