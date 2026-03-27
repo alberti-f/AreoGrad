@@ -39,3 +39,5 @@ src/*.egg-info/*
 */renv/*
 
 .snakemake/*
+output/*
+*_IDs.txt
