@@ -15,7 +15,7 @@ n_gradients = np.int32(SMK.wildcards["n_gradients"]) - 1
 
 true_path = SMK.input["true_path"]
 perm_paths = SMK.input["perm_paths"]
-true_paths_md = SMK.input["true_path_md"]
+true_path_md = SMK.input["true_path_md"]
 perm_paths_md = SMK.input["perm_paths_md"]
 
 metric = "mean_r2"
@@ -35,7 +35,7 @@ if os.path.exists(perm_out):
 
 
 perm_res_md = pd.DataFrame([vu.load_hdf5(p) for p in perm_paths_md])
-real_res_md = cvz.summarize_results(vu.load_hdf5(true_path).values())
+real_res_md = cvz.summarize_results(vu.load_hdf5(true_path_md).values())
 perm_test_md = np.mean(perm_res_md[metric] >= real_res_md[metric])
 perm_res_md.loc["real"] = [real_res_md[k] for k in perm_res_md.columns.to_list()]
 perm_res_md.loc["p", metric] = perm_test_md
