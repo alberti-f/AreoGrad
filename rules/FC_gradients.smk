@@ -6,7 +6,7 @@ rule parcel_FC:
     log:
         f'{OUTDIR}/logs/parcel_FC.{PARCELLATION}_{SCALE}.{{subj_id}}.log'
     script:
-        "scripts/03.parcel_FC.py"
+        f"{SCRIPTS}/03.parcel_FC.py"
 
 # Compute group-average FC matrix
 rule group_FC:
@@ -18,7 +18,7 @@ rule group_FC:
     output:
         f'{OUTDIR}/{DATASET}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy'
     script:
-        "scripts/04.group_FC.py"
+        f"{SCRIPTS}/04.group_FC.py"
 
 # Group-level gradients
 rule group_gradients:
@@ -33,7 +33,7 @@ rule group_gradients:
         kernel = config["kernel"],
         random_state = config["random_state"]
     script:
-        "scripts/05.group_gradients.py"
+        f"{SCRIPTS}/05.group_gradients.py"
 
 # Compute aligned gradients
 rule individual_gradients:
@@ -50,4 +50,21 @@ rule individual_gradients:
         kernel = config["kernel"],
         random_state = config["random_state"]
     script:
-        "scripts/06.individual_gradients.py"
+        f"{SCRIPTS}/06.individual_gradients.py"
+
+# Aggregate individual data into a single file for easier analysis
+rule stack_data:
+    input:
+        gradient_paths = expand(
+            f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy',
+            subj_id=SUBJECTS
+            ),
+        area_paths = expand(
+            f'{OUTDIR}/{{subj_id}}/{{subj_id}}.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy',
+            subj_id=SUBJECTS
+            )
+    output:
+        f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
+        f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
+    script:
+        f"{SCRIPTS}/07.stack_data.py"

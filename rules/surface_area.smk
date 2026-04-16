@@ -5,7 +5,7 @@ rule vertex_area:
     log:
         f'{OUTDIR}/logs/vertex_area.{PARCELLATION}_{SCALE}.{{subj_id}}.log'
     script:
-        "scripts/01.vertex_area.py"
+        f"{SCRIPTS}/01.vertex_area.py"
 
 # Compute parcel area
 rule parcel_area:
@@ -16,4 +16,4 @@ rule parcel_area:
     log:
         f'{OUTDIR}/logs/parcel_area.{PARCELLATION}_{SCALE}.{{subj_id}}.log'
     script:
-        "scripts/02.parcel_area.py"
+        f"{SCRIPTS}/02.parcel_area.py"
