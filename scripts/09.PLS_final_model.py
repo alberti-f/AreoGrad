@@ -49,6 +49,7 @@ best_params, _, _ = cvz.grid_search(param_grid, X_norm, y_norm,
 
 final_model = PLSRegression(scale=False, **best_params)
 final_model.fit(X_norm, y_norm)
-out_dict = final_model.__dict__
+out_dict = {k: val
+            for k, val in final_model.__dict__.items()
+            if isinstance(val, (np.ndarray, int, float, np.floating, np.integer))}
 vu.save_hdf5(out_dict, out_path)
-
