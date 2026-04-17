@@ -29,6 +29,10 @@ rule all:
         expand(
             f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/PLS/CV_results_G1-G{{n_gradients}}.rs{config['random_state']}.perm_test.csv",
             n_gradients=config["n_gradients"]
+            ),
+        expand(
+            f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/PLS/Bootstraps_G1-G{{n_gradients}}.rs{config['random_state']}.h5",
+            n_gradients=config["n_gradients"]
             )
         # expand(
         #     f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/PLS/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.perm_test.csv",
@@ -36,5 +40,5 @@ rule all:
         #     )
 
 onsuccess:
-    shell("snakemake --rulegraph | dot -Gnodesep=1.5 -Granksep=0.3 -Gbgcolor=transparent -Tpng -o rulegraph.png"),
-    shell("git add rulegraph.png && git commit -m 'Update rulegraph after successful run'")
+    shell("snakemake --rulegraph | dot -Gnodesep=1.5 -Granksep=0.3 -Gbgcolor=white -Tpng -o rulegraph.png"),
+    shell("git diff --quiet rulegraph.png || git add rulegraph.png && git commit -m 'Update rulegraph after successful run'")
