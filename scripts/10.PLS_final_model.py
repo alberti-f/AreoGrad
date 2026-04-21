@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.metrics import pairwise_distances
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 
@@ -20,22 +19,17 @@ n_gradients = np.int32(SMK.wildcards["n_gradients"])
 
 area_path = SMK.input["area_path"]
 gradient_path = SMK.input["gradient_path"]
+dispersion_path = SMK.input["dispersion_path"]
 out_path = SMK.output[0]
 
 
 
 surf_area = np.load(area_path)
-gradients = np.atleast_2d(np.load(gradient_path)[:,:,:n_gradients])
-triu_idx = np.triu_indices(gradients.shape[1], k=1)
-dispersion = np.array([
-    [np.mean(pairwise_distances(g[:, None], metric="euclidean")) for g in subj.T]
-    for subj in gradients
-    ])
+dispersion = np.atleast_2d(np.load(dispersion_path)[:, :n_gradients])
 
 X = surf_area
 X_norm = StandardScaler().fit_transform(X)
 y = dispersion
-y_norm = StandardScaler().fit_transform(dispersion)
 if y.ndim == 1: y = y.reshape(-1,1)
 cv_split = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
 
@@ -44,11 +38,11 @@ param_grid = {
 }
 
 model = PLSRegression(scale=False)
-best_params, _, _ = cvz.grid_search(param_grid, X_norm, y_norm,
+best_params, _, _ = cvz.grid_search(param_grid, X_norm, y.copy(),
                                     model, cv_split, metric="rmse")
 
 final_model = PLSRegression(scale=False, **best_params)
-final_model.fit(X_norm, y_norm)
+final_model.fit(X_norm, y.copy())
 out_dict = {k: val
             for k, val in final_model.__dict__.items()
             if isinstance(val, (np.ndarray, int, float, np.floating, np.integer))}
