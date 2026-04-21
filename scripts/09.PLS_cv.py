@@ -2,7 +2,6 @@ import os
 import numpy as np
 from sklearn.model_selection import KFold
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.metrics import pairwise_distances
 
 import CVz.CVz as cvz
 import variograd_utils as vu
@@ -20,6 +19,7 @@ n_gradients = np.int32(SMK.wildcards["n_gradients"])
 
 area_path = SMK.input["area_path"]
 gradient_path = SMK.input["gradient_path"]
+dispersion_path = SMK.input["dispersion_path"]
 out_path = SMK.output[0]
 
 def vip(x_scores, x_weights, y_loadings):
@@ -35,12 +35,7 @@ def vip(x_scores, x_weights, y_loadings):
 
 
 surf_area = np.load(area_path)
-gradients = np.atleast_2d(np.load(gradient_path)[:,:,:n_gradients])
-triu_idx = np.triu_indices(gradients.shape[1], k=1)
-dispersion = np.array([
-    [np.mean(pairwise_distances(g[:, None], metric="euclidean")) for g in subj.T]
-    for subj in gradients
-    ])
+dispersion = np.atleast_2d(np.load(dispersion_path)[:, :n_gradients])
 
 X = surf_area
 y = dispersion
@@ -64,7 +59,7 @@ cv_args = {
 }
 
 out = cvz.run_cv(**cv_args)
-for i, fold in out.items():
+for i, fold in enumerate(out):
    out[i]["vip"] = vip(fold["x_scores_"], fold["x_weights_"], fold["y_loadings_"])
 out_dict = dict(zip(np.arange(1, n_splits+1).astype("str"), out))
 os.makedirs(os.path.dirname(out_path), exist_ok=True)

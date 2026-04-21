@@ -1,6 +1,7 @@
 import os
 import variograd_utils as vu
 import numpy as np
+from sklearn.metrics import pairwise_distances
 
 SMK = snakemake
 
@@ -13,13 +14,19 @@ gradient_paths = SMK.input["gradient_paths"]
 dataset = vu.dataset(dataset_id)
 
 area_all = np.array([np.load(p) for p in area_paths])
-outpath = vu.dataset(dataset_id).outpath(f"AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{parcellation}_{parcellation_scale}.npy")
-if not os.path.exists(os.path.dirname(outpath)):
-    os.makedirs(os.path.dirname(outpath))
-np.save(outpath, area_all)
+if not os.path.exists(os.path.dirname(SMK.output["area_out"])):
+    os.makedirs(os.path.dirname(SMK.output["area_out"]))
+np.save(SMK.output["area_out"], area_all)
 
 gradients_all = np.array([np.load(p) for p in gradient_paths])
-outpath = vu.dataset(dataset_id).outpath(f"AreaResults/All.rFC_Gradients.{parcellation}_{parcellation_scale}.npy")
-if not os.path.exists(os.path.dirname(outpath)):
-    os.makedirs(os.path.dirname(outpath))
-np.save(outpath, gradients_all)
+if not os.path.exists(os.path.dirname(SMK.output["gradient_out"])):
+    os.makedirs(os.path.dirname(SMK.output["gradient_out"]))
+np.save(SMK.output["gradient_out"], gradients_all)
+
+dispersion_all = np.array([
+    [np.mean(pairwise_distances(g[:, None], metric="euclidean")) for g in subj.T]
+    for subj in gradients_all
+    ])
+if not os.path.exists(os.path.dirname(SMK.output["dispersion_out"])):
+    os.makedirs(os.path.dirname(SMK.output["dispersion_out"]))
+np.save(SMK.output["dispersion_out"], dispersion_all)

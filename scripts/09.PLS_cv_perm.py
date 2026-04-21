@@ -2,7 +2,6 @@ import os
 import numpy as np
 from sklearn.model_selection import KFold
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.metrics import pairwise_distances
 
 import CVz.CVz as cvz
 import variograd_utils as vu
@@ -20,16 +19,12 @@ n_gradients = np.int32(SMK.wildcards["n_gradients"])
 
 area_path = SMK.input["area_path"]
 gradient_path = SMK.input["gradient_path"]
+dispersion_path = SMK.input["dispersion_path"]
 out_path = SMK.output[0]
 
 
 surf_area = np.load(area_path)
-gradients = np.atleast_2d(np.load(gradient_path)[:,:,:n_gradients])
-triu_idx = np.triu_indices(gradients.shape[1], k=1)
-dispersion = np.array([
-    [np.mean(pairwise_distances(g[:, None], metric="euclidean")) for g in subj.T]
-    for subj in gradients
-    ])
+dispersion = np.atleast_2d(np.load(dispersion_path)[:, :n_gradients])
 
 rng = np.random.default_rng()
 X = surf_area

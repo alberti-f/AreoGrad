@@ -64,7 +64,8 @@ rule stack_data:
             subj_id=SUBJECTS
             )
     output:
-        f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
-        f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
+        gradient_out = f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
+        area_out = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy",
+        dispersion_out = f"{OUTDIR}/AreaResults/All.rFC_Dispersion.{PARCELLATION}_{SCALE}.npy"
     script:
         f"{SCRIPTS}/07.stack_data.py"

@@ -18,9 +18,13 @@ perm_paths = SMK.input["perm_paths"]
 
 out_path = SMK.output[0]
 
-metric = "mean_rmse"
+metric = "mean_r2"
 
-perm_res = pd.DataFrame([vu.load_hdf5(p) for p in perm_paths])
+perm_res = pd.DataFrame([
+    {k: v.mean() for k, v in vu.load_hdf5(p).items()}
+    for p in perm_paths
+    ])
+
 real_res = cvz.summarize_results(vu.load_hdf5(true_path).values())
 perm_test = np.mean(np.mean(perm_res[metric]) <= np.mean(real_res[metric]))
 perm_res.loc["real"] = [real_res[k] for k in perm_res.columns.to_list()]
