@@ -2,7 +2,8 @@
 rule pls_cv:
     input:
         gradient_path = f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
-        area_path = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
+        area_path = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy",
+        dispersion_path = f"{OUTDIR}/AreaResults/All.rFC_Dispersion.{PARCELLATION}_{SCALE}.npy"
     output:
         f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/PLS/CV_results_G1-G{{n_gradients}}.rs{config['random_state']}.h5",
     params:
@@ -15,7 +16,8 @@ rule pls_cv:
 rule pls_cv_perm:
     input:
         gradient_path = f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
-        area_path = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
+        area_path = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy",
+        dispersion_path = f"{OUTDIR}/AreaResults/All.rFC_Dispersion.{PARCELLATION}_{SCALE}.npy"
     output:
         f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/PLS/permutations/CV_results_G1-G{{n_gradients}}_perm{{i_perm}}.rs{config['random_state']}.h5",
     params:
@@ -38,31 +40,3 @@ rule pls_perm_test:
         random_state = config["random_state"]
     script:
         f"{SCRIPTS}/09.PLS_perm_test.py"
-
-# Final PLS model
-rule pls_final_model:
-    input:
-        gradient_path = f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
-        area_path = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
-    output:
-        f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/PLS/FinalModel_G1-G{{n_gradients}}.rs{config['random_state']}.h5",
-    params:
-        random_state = config["random_state"],
-        n_splits = config["n_splits"]
-    script:
-        f"{SCRIPTS}/09.PLS_final_model.py"
-
-# PLS bootstraps for final model
-rule pls_bootstraps:
-    input:
-        gradient_path = f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
-        area_path = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy",
-        model_path = f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/PLS/FinalModel_G1-G{{n_gradients}}.rs{config['random_state']}.h5"
-    output:
-        f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/PLS/Bootstraps_G1-G{{n_gradients}}.rs{config['random_state']}.h5"
-    params:
-        random_state = config["random_state"],
-        n_splits = config["n_splits"],
-        n_bootstraps = config["n_bootstraps"]
-    script:
-        f"{SCRIPTS}/09.PLS_bootstraps.py"
