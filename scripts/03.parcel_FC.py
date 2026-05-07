@@ -21,12 +21,11 @@ idx_cortex = np.hstack([hcp.vertex_info.grayl, hcp.vertex_info.grayr + hcp.verte
 labels = load_parcellation(parcellation, scale=parcellation_scale, join=True)[idx_cortex]
 labs_start = 1 if 0 in labels else 0
 
-runs = product([1, 2], ["LR", "RL"])
-tseries_path = f"{subj.dir}/MNINonLinear/Results/rfMRI_REST{{run}}/rfMRI_REST{{run}}_Atlas_MSMAll_hp2000_clean.dtseries.nii"
+runs = [f"{subj.dir}/{run}" for run in SMK.params.values()]
 
 tseries = []
-for run, lr in runs:
-    tseries32k = nib.load(tseries_path.format(run=f"{run}_{lr}")).get_fdata()[:, :n_cortex]
+for run in runs:
+    tseries32k = nib.load(run).get_fdata()[:, :n_cortex]
     ts_parc = reduce_by_labels(tseries32k, labels)[:, labs_start:]
     ts_parc = zscore(ts_parc, axis=0)
     tseries.append(ts_parc)
@@ -34,5 +33,5 @@ for run, lr in runs:
 tseries_parcs = np.vstack(tseries).T
 fc_rest = np.corrcoef(tseries_parcs)
 
-np.save(subj.outpath(f"{subj_id}.rfMRI_REST_all_runs.{parcellation}_{parcellation_scale}.npy"), tseries_parcs)
-np.save(subj.outpath(f"{subj_id}.rFC_all_runs.{parcellation}_{parcellation_scale}.npy"), fc_rest)
+np.save(SMK.output["ts"], tseries_parcs)
+np.save(SMK.output["fc"], fc_rest)
