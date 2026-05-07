@@ -1,10 +1,12 @@
 # Parcellate rs timeseries and compute FC matrices
 rule parcel_FC:
     output:
-        f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rfMRI_REST_all_runs.{PARCELLATION}_{SCALE}.npy',
-        f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy',
-    log:
-        f'{OUTDIR}/logs/parcel_FC.{PARCELLATION}_{SCALE}.{{subj_id}}.log'
+        ts = f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rfMRI_REST_all_runs.{PARCELLATION}_{SCALE}.npy',
+        fc = f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy'
+    params:
+        **config["rfMRI_runs"]  
+    resources:
+        **LARGEJOB
     script:
         f"{SCRIPTS}/03.parcel_FC.py"
 
@@ -17,6 +19,8 @@ rule group_FC:
         )
     output:
         f'{OUTDIR}/{DATASET}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy'
+    resources:
+        **MEDIUMJOB
     script:
         f"{SCRIPTS}/04.group_FC.py"
 
@@ -25,13 +29,15 @@ rule group_gradients:
     input:
         f'{OUTDIR}/{DATASET}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy'
     output:
-        f'{OUTDIR}/{DATASET}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy'
+        f'{OUTDIR}/{OUTSUBDIR}/{DATASET}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy'
     params:
         n_components = config["n_components"],
         threshold = config["threshold"],
         approach = config["approach"],
         kernel = config["kernel"],
         random_state = config["random_state"]
+    resources:
+        **MEDIUMJOB
     script:
         f"{SCRIPTS}/05.group_gradients.py"
 
@@ -40,15 +46,17 @@ rule individual_gradients:
     input:
         f'{OUTDIR}/{DATASET}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy',
         f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy',
-        f'{OUTDIR}/{DATASET}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy'
+        f'{OUTDIR}/{OUTSUBDIR}/{DATASET}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy'
     output:
-        f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy',
+        f'{OUTDIR}/{{subj_id}}/{OUTSUBDIR}/{{subj_id}}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy',
     params:
         n_components = config["n_components"],
         threshold = config["threshold"],
         approach = config["approach"],
         kernel = config["kernel"],
         random_state = config["random_state"]
+    resources:
+        **MEDIUMJOB
     script:
         f"{SCRIPTS}/06.individual_gradients.py"
 
@@ -56,7 +64,7 @@ rule individual_gradients:
 rule stack_data:
     input:
         gradient_paths = expand(
-            f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy',
+            f'{OUTDIR}/{{subj_id}}/{OUTSUBDIR}/{{subj_id}}.rFC_Gradients.{PARCELLATION}_{SCALE}.npy',
             subj_id=SUBJECTS
             ),
         area_paths = expand(
@@ -64,8 +72,10 @@ rule stack_data:
             subj_id=SUBJECTS
             )
     output:
-        gradient_out = f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
-        area_out = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy",
-        dispersion_out = f"{OUTDIR}/AreaResults/All.rFC_Dispersion.{PARCELLATION}_{SCALE}.npy"
+        gradient_out = f"{OUTDIR}/{OUTSUBDIR}/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
+        area_out = f"{OUTDIR}/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy",
+        dispersion_out = f"{OUTDIR}/{OUTSUBDIR}/All.rFC_Dispersion.{PARCELLATION}_{SCALE}.npy"
+    resources:
+        **LARGEJOB
     script:
         f"{SCRIPTS}/07.stack_data.py"
