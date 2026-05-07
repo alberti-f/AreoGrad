@@ -1,11 +1,11 @@
 # Ridge regression with cross-validation
 rule ridge_cv:
     input:
-        gradient_path = f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
-        area_path = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
+        gradient_path = f"{OUTDIR}/{OUTSUBDIR}/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
+        area_path = f"{OUTDIR}/{OUTSUBDIR}/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
     output:
-        f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/CV_results_G{{n_gradients}}_rs{config['random_state']}.h5",
-        f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.h5"
+        f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/CV_results_G{{n_gradients}}_rs{config['random_state']}.h5",
+        f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.h5"
     params:
         random_state = config["random_state"],
         n_splits = config["n_splits"]
@@ -15,11 +15,11 @@ rule ridge_cv:
 # Ridge regression permutations
 rule ridge_cv_perm:
     input:
-        gradient_path = f"{OUTDIR}/AreaResults/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
-        area_path = f"{OUTDIR}/AreaResults/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
+        gradient_path = f"{OUTDIR}/{OUTSUBDIR}/All.rFC_Gradients.{PARCELLATION}_{SCALE}.npy",
+        area_path = f"{OUTDIR}/{OUTSUBDIR}/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy"
     output:
-        f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/permutations/CV_results_G{{n_gradients}}_rs{config['random_state']}.perm{{i_perm}}.h5",
-        f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/permutations/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.perm{{i_perm}}.h5"
+        f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/permutations/CV_results_G{{n_gradients}}_rs{config['random_state']}.perm{{i_perm}}.h5",
+        f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/permutations/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.perm{{i_perm}}.h5"
     params:
         random_state = config["random_state"],
         n_splits = config["n_splits"]
@@ -31,19 +31,19 @@ rule ridge_cv_perm:
 # Permutation test
 rule ridge_perm_test:
     input:
-        true_path = f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/CV_results_G{{n_gradients}}_rs{config['random_state']}.h5",
+        true_path = f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/CV_results_G{{n_gradients}}_rs{config['random_state']}.h5",
         perm_paths = lambda wc: expand(
-            f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/permutations/CV_results_G{{n_gradients}}_rs{config['random_state']}.perm{{i_perm}}.h5",
+            f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/permutations/CV_results_G{{n_gradients}}_rs{config['random_state']}.perm{{i_perm}}.h5",
             n_gradients=wc.n_gradients, i_perm=range(config["n_permutations"])
         ),
-        true_path_md = f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.h5",
+        true_path_md = f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.h5",
         perm_paths_md = lambda wc: expand(
-            f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/permutations/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.perm{{i_perm}}.h5",
+            f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/permutations/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.perm{{i_perm}}.h5",
             n_gradients=wc.n_gradients, i_perm=range(config["n_permutations"])
         )
     output:
-        f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/CV_results_G{{n_gradients}}_rs{config['random_state']}.perm_test.csv",
-        f"{OUTDIR}/AreaResults/{PARCELLATION}_{SCALE}/Ridge/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.perm_test.csv"
+        f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/CV_results_G{{n_gradients}}_rs{config['random_state']}.perm_test.csv",
+        f"{OUTDIR}/{OUTSUBDIR}/{PARCELLATION}_{SCALE}/Ridge/CV_results_G1-G{{n_gradients}}_rs{config['random_state']}.perm_test.csv"
     params:
         random_state = config["random_state"]
     log:
