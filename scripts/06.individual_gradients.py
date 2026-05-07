@@ -60,4 +60,4 @@ gradients_r = gradients_r * signs
 
 gradients = np.vstack([gradients_l, gradients_r])
 subj = vu.subject(subj_id, dataset_id)
-np.save(subj.outpath(f"{subj_id}.rFC_Gradients.{parcellation}_{parcellation_scale}.npy"), gradients)
+np.save(SMK.output[0], gradients)

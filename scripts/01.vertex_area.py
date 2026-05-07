@@ -27,7 +27,7 @@ metric_r = subj.outpath(f"{subj_id}.R.T1w.midthickness_MSMAll_va.32k_fs_LR.shape
 run(calculate_vertex_area.format(surface=surface, metric=metric_r), shell=True)
 
 # Create CIFTI
-dscalar = subj.outpath(f"{subj_id}.T1w.midthickness_MSMAll_va.32k_fs_LR.dscalar.nii")
+dscalar = SMK.output[0]
 run(create_cifti.format(dscalar=dscalar, lmetric=metric_l, rmetric=metric_r), shell=True)
 
 if os.path.exists(dscalar):

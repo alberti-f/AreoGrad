@@ -37,4 +37,4 @@ gradients_r = gm_r.gradients_
 
 gradients = np.vstack([gradients_l, gradients_r])
 dataset = vu.dataset(dataset_id)
-np.save(dataset.outpath(f"{dataset_id}.rFC_Gradients.{parcellation}_{parcellation_scale}.npy"), gradients)
+np.save(SMK.output[0], gradients)

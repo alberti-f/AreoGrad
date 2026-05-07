@@ -23,4 +23,4 @@ FC_avg /= len(subject_FCs)
 FC_avg = np.tanh(FC_avg)
 print(FC_avg.shape, FC_tmp.shape)
 
-np.save(dataset.outpath(f'{dataset.id}.rFC_all_runs.{parcellation}_{parcellation_scale}.npy'), FC_avg)
+np.save(SMK.output[0], FC_avg)

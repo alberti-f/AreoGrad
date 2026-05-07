@@ -20,6 +20,7 @@ idx_cortex = np.hstack([hcp.vertex_info.grayl, hcp.vertex_info.grayr + hcp.verte
 subj = vu.subject(subj_id, dataset_id)
 area = nib.load(area_dscalar).get_fdata().squeeze()[idx_cortex]
 labels = load_parcellation(parcellation, scale=parcellation_scale, join=True)[idx_cortex]
-area_parcs = reduce_by_labels(area, labels, red_op=np.sum)[1:]
+labs_start = 1 if 0 in labels else 0
+area_parcs = reduce_by_labels(area, labels, red_op=np.sum)[labs_start:]
 
-np.save(subj.outpath(f"{subj_id}.T1w.midthickness_MSMAll_va.32k_fs_LR.{parcellation}_{parcellation_scale}.npy"), area_parcs)
+np.save(SMK.output[0], area_parcs)
