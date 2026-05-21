@@ -41,13 +41,13 @@ rule nw_fc_correlation:
         area_path = f"{OUTDIR}/All.T1w.midthickness_MSMAll_va.32k_fs_LR.{PARCELLATION}_{SCALE}.npy",
         dispersion_path = f"{OUTDIR}/{OUTSUBDIR}/All.rFC_Dispersion.{PARCELLATION}_{SCALE}.npy",
         final_model_path = f"{OUTDIR}/{OUTSUBDIR}/PLS/FinalModel_G1-G{{n_gradients}}.rs{config['random_state']}.h5",
-        parcellation_path = config["parcellation_path"].format(SCALE),
         fc_paths = expand(
             f"{OUTDIR}/{{subj}}/{{subj}}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy", subj=SUBJECTS
             )
     output:
         f"{OUTDIR}/{OUTSUBDIR}/PLS/NW_FC_Correlation_G1-G{{n_gradients}}.rs{config['random_state']}.csv",
     params:
+        parcellation_path = PARCELLATION_PATH.format(subj_id=SUBJECTS[0]),
         random_state = config["random_state"],
         n_bootstraps = config["n_bootstraps"]
     resources:

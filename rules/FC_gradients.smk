@@ -4,9 +4,11 @@ rule parcel_FC:
         ts = f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rfMRI_REST_all_runs.{PARCELLATION}_{SCALE}.npy',
         fc = f'{OUTDIR}/{{subj_id}}/{{subj_id}}.rFC_all_runs.{PARCELLATION}_{SCALE}.npy'
     params:
-        **config["rfMRI_runs"]  
+        parcellation_path = PARCELLATION_PATH,
+        runs = RUNS,
+        parcellate_ts = config["parcellate_ts"],
     resources:
-        **LARGEJOB
+        **MEDIUMJOB
     script:
         f"{SCRIPTS}/03.parcel_FC.py"
 
@@ -35,9 +37,13 @@ rule group_gradients:
         threshold = config["threshold"],
         approach = config["approach"],
         kernel = config["kernel"],
-        random_state = config["random_state"]
+        random_state = config["random_state"],
+        parcellation_path = PARCELLATION_PATH.format(subj_id=SUBJECTS[0]),
+        split_hemispheres = config["split_hemispheres"]
     resources:
         **MEDIUMJOB
+    log:
+        f"{OUTDIR}/{OUTSUBDIR}/logs/group_gradients.log"
     script:
         f"{SCRIPTS}/05.group_gradients.py"
 
@@ -54,7 +60,9 @@ rule individual_gradients:
         threshold = config["threshold"],
         approach = config["approach"],
         kernel = config["kernel"],
-        random_state = config["random_state"]
+        random_state = config["random_state"],
+        parcellation_path = PARCELLATION_PATH,
+        split_hemispheres = config["split_hemispheres"]
     resources:
         **MEDIUMJOB
     script:
