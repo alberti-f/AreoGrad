@@ -1,0 +1,43 @@
+# dataset
+dataset_id : "datased_id" ##################
+output_subdir : "{parcellation}_{parcellation_scale}.fcthr_{threshold}.rnd_{random_state}"
+
+# parcellation
+parcellation : "name_of_parcellation"
+parcellation_scale : <number_of_parcels>
+parcellation_path : "path/to/parcellation.dlabel.nii"
+parcellate_ts : False
+
+# gradients
+n_components : 10
+threshold : 0.95
+approach : "dm"
+kernel : "normalized_angle"
+random_state : 42
+split_hemispheres : False
+
+# cross-validation
+n_gradients : [10]
+n_permutations : 1000 
+n_splits : 10 
+n_bootstraps : 1000
+
+surfaces:
+  lh : "path/to/left_surface.surf.gii"
+  rh : "path/to/right_surface.surf.gii"
+
+
+rfMRI_runs:
+  run1 : "path/to/parcellated_rfMRI_time_series.npy"
+
+# slurm parameters preset
+resource_presets:
+  small:
+    runtime: "30m"
+    mem: "4G"
+  medium:
+    runtime: "60m"
+    mem: "8G"
+  large:
+    runtime: "12h"
+    mem: "32G"
