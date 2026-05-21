@@ -1,8 +1,5 @@
-from brainspace.gradient import GradientMaps
 import numpy as np
-import hcp_utils as hcp
 import variograd_utils as vu
-from brainspace.datasets import load_parcellation
 SMK = snakemake
 
 dataset_id = SMK.config["dataset_id"]
