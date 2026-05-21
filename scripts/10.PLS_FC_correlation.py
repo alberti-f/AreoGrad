@@ -1,16 +1,17 @@
-import os
 import numpy as np
-from sklearn.model_selection import KFold
-from sklearn.cross_decomposition import PLSRegression
+import hcp_utils as hcp
+import nibabel as nib
+import pandas as pd
 
-import CVz.CVz as cvz
 import variograd_utils as vu
+
 
 SMK = snakemake
 
 dataset_id = SMK.config["dataset_id"]
 dataset = vu.dataset(dataset_id)
 parcellation = SMK.config["parcellation"]
+parcellation_path = SMK.params["parcellation_path"]
 
 random_state = SMK.params["random_state"]
 n_bootstraps = SMK.params["n_bootstraps"]
@@ -20,19 +21,8 @@ area_path = SMK.input["area_path"]
 gradient_path = SMK.input["gradient_path"]
 dispersion_path = SMK.input["dispersion_path"]
 final_model_path = SMK.input["final_model_path"]
-parcellation_path = SMK.input["parcellation_path"]
 fc_paths = SMK.input["fc_paths"]
 out_path = SMK.output[0]
-
-
-# interpret dispersion based on NW connectivity
-
-import numpy as np
-from sklearn.metrics import pairwise_distances
-import hcp_utils as hcp
-from brainspace.datasets import load_parcellation
-import nibabel as nib
-import pandas as pd
 
 
 surf_area = np.load(area_path)
@@ -54,7 +44,6 @@ nw_names = label_df["NW"].unique()
 M = np.vstack([label_df["NW"].values == nw for nw in nw_names]).astype(np.float32)
 M /= M.sum(axis=1, keepdims=True)
 
-# compute average network FC
 nw_triu_idx = np.triu_indices(len(nw_names), k=0)
 nw_pairs = list(zip(nw_names[nw_triu_idx[0]], nw_names[nw_triu_idx[1]]))
 
