@@ -1,12 +1,18 @@
 # Snakefile
 
 import variograd_utils as vu
-configfile: "config.yaml"
+import helpers as hlp
+configfile: "config_hcp.yaml"
 
 DATASET = config["dataset_id"]
 SUBJECTS = vu.dataset(DATASET).subj_list
 PARCELLATION = config["parcellation"]
 SCALE = config["parcellation_scale"]
+FMT = locals()
+RUNS = [run.format_map(FMT) for run in config["rfMRI_runs"].values()]
+PARCELLATION_PATH = config['parcellation_path'].format_map(locals())
+
+print(PARCELLATION_PATH)
 
 SCRIPTS = f"{workflow.basedir}/scripts"
 OUTDIR = vu.dataset(DATASET).output_dir
@@ -45,5 +51,5 @@ rule all:
 
 
 onsuccess:
-    shell("snakemake --rulegraph | dot -Gnodesep=1.5 -Granksep=0.3 -Gbgcolor=white -Tpng -o rulegraph.png"),
+    shell("snakemake --snakefile Snakefile_hcp --rulegraph | dot -Gnodesep=1.5 -Granksep=0.3 -Gbgcolor=white -Tpng -o rulegraph.png"),
     shell("git diff --quiet rulegraph.png || (git add rulegraph.png && git commit -m 'Update rulegraph after successful run')")
