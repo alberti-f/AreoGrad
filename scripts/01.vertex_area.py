@@ -10,21 +10,21 @@ subj_id = SMK.wildcards["subj_id"]
 dataset_id = SMK.config["dataset_id"]
 
 subj = vu.subject(subj_id, dataset_id)
-if not os.path.exists(subj.outpath("")):
-    os.makedirs(subj.outpath(""))
+os.makedirs(subj.outpath(""), exist_ok=True)
+
+lh_surf = f"{subj.dir}/{SMK.params['lh_surf']}"
+rh_surf = f"{subj.dir}/{SMK.params['rh_surf']}"
 
 calculate_vertex_area = "wb_command -surface-vertex-areas {surface} {metric}"
 create_cifti = "wb_command -cifti-create-dense-scalar {dscalar} -left-metric {lmetric} -right-metric {rmetric}"
 
 # Left hemisphere
-surface = getattr(subj, f"L_midthickness_32k_T1w")
 metric_l = subj.outpath(f"{subj_id}.L.T1w.midthickness_MSMAll_va.32k_fs_LR.shape.gii")
-run(calculate_vertex_area.format(surface=surface, metric=metric_l), shell=True)
+run(calculate_vertex_area.format(surface=lh_surf, metric=metric_l), shell=True)
 
 # Right hemisphere
-surface = getattr(subj, f"R_midthickness_32k_T1w")
 metric_r = subj.outpath(f"{subj_id}.R.T1w.midthickness_MSMAll_va.32k_fs_LR.shape.gii")
-run(calculate_vertex_area.format(surface=surface, metric=metric_r), shell=True)
+run(calculate_vertex_area.format(surface=rh_surf, metric=metric_r), shell=True)
 
 # Create CIFTI
 dscalar = SMK.output[0]
