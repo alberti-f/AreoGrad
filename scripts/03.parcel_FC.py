@@ -14,20 +14,32 @@ subj_id = SMK.wildcards["subj_id"]
 dataset_id = SMK.config["dataset_id"]
 parcellation = SMK.config["parcellation"]
 parcellation_scale = SMK.config["parcellation_scale"]
+parcellation_path = SMK.params["parcellation_path"]
+parcellate_ts = SMK.config["parcellate_ts"]
 
 subj = vu.subject(subj_id, dataset_id)
-n_cortex = hcp.vertex_info.grayl.size + hcp.vertex_info.grayr.size
-idx_cortex = np.hstack([hcp.vertex_info.grayl, hcp.vertex_info.grayr + hcp.vertex_info.num_meshl])
-labels = load_parcellation(parcellation, scale=parcellation_scale, join=True)[idx_cortex]
-labs_start = 1 if 0 in labels else 0
+if parcellate_ts:
+    n_cortex = hcp.vertex_info.grayl.size + hcp.vertex_info.grayr.size
+    idx_cortex = np.hstack([hcp.vertex_info.grayl, hcp.vertex_info.grayr + hcp.vertex_info.num_meshl])
+    labels = nib.load(parcellation_path).get_fdata().squeeze().astype(int)
+    if labels.size==64984:
+        labels = labels[idx_cortex]
+    elif labels.size==59412:
+        labels = labels
+    else:
+        raise ValueError("Unexpected number of vertices in parcellation labels")
+    labs_start = 1 if 0 in labels else 0
 
-runs = [f"{subj.dir}/{run}" for run in SMK.params.values()]
+runs = [f"{subj.dir}/{run}" for run in SMK.params["runs"]]
 
 tseries = []
 for run in runs:
-    tseries32k = nib.load(run).get_fdata()[:, :n_cortex]
-    ts_parc = reduce_by_labels(tseries32k, labels)[:, labs_start:]
-    ts_parc = zscore(ts_parc, axis=0)
+    if parcellate_ts:
+        tseries32k = nib.load(run).get_fdata()[:, :n_cortex]
+        ts_parc = reduce_by_labels(tseries32k, labels)[:, labs_start:]
+        ts_parc = zscore(ts_parc, axis=0)
+    else:
+        ts_parc = zscore(np.load(run), axis=0)
     tseries.append(ts_parc)
 
 tseries_parcs = np.vstack(tseries).T
