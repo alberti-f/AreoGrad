@@ -20,7 +20,6 @@ idx_cortex = np.hstack([hcp.vertex_info.grayl, hcp.vertex_info.grayr + hcp.verte
 
 subj = vu.subject(subj_id, dataset_id)
 area = nib.load(area_dscalar).get_fdata().squeeze()[idx_cortex]
-# labels = load_parcellation(parcellation, scale=parcellation_scale, join=True)[idx_cortex]
 labels = nib.load(parcellation_path).get_fdata().squeeze().astype(int)
 if labels.size==64984:
     labels = labels[idx_cortex]
