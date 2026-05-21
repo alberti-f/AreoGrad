@@ -44,7 +44,8 @@ def align_components(reference, components):
         components = components[:, col_ind]
         flip = np.sign(corr[row_ind, col_ind])
     elif reference.shape[1] == 1:
-        flip = np.sign(corr)
+        col_ind = np.array([0])
+        flip = np.sign(corr).squeeze()
     components *= flip
 
     return components, col_ind, flip
