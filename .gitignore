@@ -1,5 +1,5 @@
-# Ignore log files
-*.log
+# Ignore python envs
+*venv*/
 
 # Ignore cache files
 __pycache__/
@@ -12,21 +12,16 @@ __pycache__/
 notebooks/*
 *.ipynb
 
-# Ignore cluster simulator
-run_analyses.sh
-
 # Ignore local paths file
 *directories.txt
 *.json
-
-# Ignore subject pairs file
-subject_pairs.txt
 
 # Ignore logs
 logs*/
 errs*/
 *.out
 *.err
+*.log
 
 # Ignore package info
 src/*.egg-info/*
@@ -38,7 +33,10 @@ src/*.egg-info/*
 *renv.lock
 */renv/*
 
+# Ignore Snakemake logs
 .snakemake/*
+
+# Other
 output/*
 *_IDs.txt
 run_pipeline_slurm.sh
