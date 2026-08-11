@@ -39,7 +39,6 @@ dispersion = np.atleast_2d(np.load(dispersion_path)[:, :n_gradients])
 
 X = surf_area
 y = dispersion
-y = (y - y.mean(axis=0)) / y.std(axis=0) # normalize to account for different scales of the gradients
 if y.ndim == 1: y = y.reshape(-1,1)
 
 param_grid = {
